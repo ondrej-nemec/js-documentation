@@ -1,3 +1,3 @@
-# JS documentation framework
+# JS Documentation
 
-This framework is low-cost solution for projects documentation.
+JS framework for displaying documentation on Github pages.
