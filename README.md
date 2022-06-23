@@ -4,8 +4,8 @@ JS framework for displaying documentation using Github pages. It supports pages 
 
 JS Documentation is using following libraries:
 
-  * (https://getbootstrap.com/docs/5.1/getting-started/introduction/)[Bootstrap 5.1]
-  * (https://highlightjs.org/)[Highlight 11.3]
+  * [https://getbootstrap.com/docs/5.1/getting-started/introduction/](Bootstrap 5.1)
+  * [https://highlightjs.org/](Highlight 11.3)
 
 ## Include and configure
 
