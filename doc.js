@@ -1,4 +1,4 @@
-/* VERSION 4.0.1 */
+/* VERSION 4.0.2 */
 var Doc = {
 	languages: {},
 	versions: {},
@@ -120,6 +120,7 @@ var Doc = {
 				"?version=" + Doc.version + "&lang=" + Doc.lang + "&file=" + Doc.file + location.hash);
 	        Doc.fillMinorMenu(content);
 	        hljs.highlightAll();
+	        window.scrollTo(0, 0);
 		}, Doc.onLoadFailure());
 	},
 
