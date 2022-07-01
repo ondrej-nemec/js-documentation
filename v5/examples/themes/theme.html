@@ -3,20 +3,76 @@
 
 	<link href="theme.css" rel="stylesheet">
 	<style type="text/css">
-		div#headline {
+		div#headline .text {
 			text-decoration: underline;
+			margin-right: 2em;
+		}
+		.dot {
+		  height: 25px;
+		  width: 25px;
+		  background-color: red;
+		  border-radius: 50%;
+		  display: inline-block;
 		}
 	</style>
 
 	<script src="theme.js"></script>
 	<script type="text/javascript">
 		console.log("JS header script executed");
+		try {
+			document.addEventListener('themeContentAdded', function() {
+				document.getElementById("head-script").style['background-color'] = "green";
+			});
+		} catch (e) {
+			console.error("head", e);
+		}
 	</script>
 </template>
 
 <template id="body">
-	<div style="font-size: 2em;" id="headline">Example theme</div>
+	<div style="font-size: 2em;" id="headline">
+		<span class="text">Example theme</span>
+		<span class="dot" id="head-script"></span>
+		<span>Script in header</span>
+
+		<span class="dot" id="body-script"></span>
+		<span>Script in body</span>
+
+		<span class="dot" id="file-script"></span>
+		<span>Script in external file</span>
+	</div>
 	<script type="text/javascript">
 		console.log("JS body script executed");
+		try {
+			document.addEventListener('themeContentAdded', function() {
+				document.getElementById("body-script").style['background-color'] = "green";
+			});
+		} catch (e) {
+			console.error("body", e);
+		}
 	</script>
+
+	<div>
+		<div style="float: left">
+			Version:  <br>
+			<ul id="js-doc__version-select"></ul>
+		</div>
+		<div style="float: left">
+			Language:  <br>
+			<ul id="js-doc__language-select"></ul>
+		</div>
+	</div>
+	<div style="clear: both"></div>
+
+	<template id="js-doc__version-item">
+		<li>{versionTitle}</li>
+	</template>
+	<template id="js-doc__language-item">
+		<li>{languageTitle}</li>
+	</template>
+
+
+	<div id="js-doc__menu"></div>
+
+	<div id="js-doc__body"></div>
 </template>

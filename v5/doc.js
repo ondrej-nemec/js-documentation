@@ -21,6 +21,9 @@ HTMLDocument.prototype.ready = function () {
 		}
 	});
 }
+/*********************/
+// https://developer.mozilla.org/en-US/docs/Web/Events/Creating_and_triggering_events
+const themeContentAddedEvent = new Event("themeContentAdded");
 /************************/
 function jdDocumentation(theme = null) {
 	var cache = {};
@@ -82,6 +85,7 @@ function jdDocumentation(theme = null) {
 	}
 	/******** PARSE ******/
 	function parseFileVersion(content, selectedVersion) {
+		// TODO zkontrolovat - ne vzdy jde
 		var wrapper = stringToHtml(content);
 		wrapper.querySelectorAll(".diff").forEach(function(element) {
 			var from = element.getAttribute("from");
@@ -97,20 +101,74 @@ function jdDocumentation(theme = null) {
 		});
 		return wrapper;
 	}
-	function parseMenu(menuObject, level = 0) {
+	function parseMenu(config, menuObject, container = null, level = 0) {
+	//	console.log(document.querySelector('#js-doc__menu-item-' + level));
+	//	console.log(document.querySelector('#js-doc__menu-container-' + level));
+
+		if (document.querySelector('.js-doc__menu-item-' + level) === null) {
+			console.warn("No templates for menu item. Level: " + level);
+			return [];
+		}
+		if (document.querySelector('.js-doc__menu-container-' + level) === null) {
+			console.warn("No templates for menu container. Level: " + level);
+			return [];
+		}
+		if (container === null) {
+			container = document.querySelector('#js-doc__menu');
+		}
+		if (container === null) {
+			console.warn("No menu placeholder");
+			return [];
+		}
+		var files = [];
+		var menuTemplate = getTemplateAsContainer(document, '.js-doc__menu-container-' + level);
 		menuObject.childNodes.forEach(function(node) {
+			var menuItemTemplate = getTemplateAsContainer(document, '.js-doc__menu-item-' + level);
+			menuTemplate.append(...menuItemTemplate.children);
 			switch(node.tagName) {
-				case "SPAN": console.log("title:" + node.innerText);break;
-				case "A": console.log("link:" + node.innerText);break;
-				case "DIV": console.log("submenu");parseMenu(node, level + 1); break;
+				case "SPAN":
+					menuTemplate.querySelector('#js-doc__menu-item-title').innerText = node.innerText;
+					break;
+				case "A":
+					menuTemplate.querySelector('#js-doc__menu-item-title').addEventListener("click", function(e) {
+						e.preventDefault();
+						config.selectedFile = node.innerText;
+						onFileChange(config);
+					});
+					files.push(node.innerText);
+					break;
+				case "DIV":
+					//console.log("submenu");
+					files.push(...parseMenu(config, node, menuItemTemplate, level + 1));
+					break;
 				case undefined:
 				default: break;
 			}
 		});
+		container.append(...menuTemplate.children);
+		return files;
+	}
+	/********** CHANGE  ************/
+	function onFileChange(config) {
+		if (config.selectedFile === null || !config.cache.hasOwnProperty(config.selectedFile)) {
+			config.selectedFile = config.defaultFile;
+		}
+		// TODO highligh
+		// TODO script
+		// TODO set lang title? - main title + page title
+		document.querySelector("#js-doc__body").innerHTML = config.cache[config.selectedFile].innerHTML;
+	}
+	function onOptionChange(config, newVal, data, selected) {
+		if (data.hasOwnProperty(newVal)) {
+			config[selected] = newVal;
+			setBody(config);
+		} else {
+			// TODO show error
+		}
 	}
 	/******* PRINTING ********/
 	function printStatic(config) {
-		var printSelect = function(name, data) {
+		var printSelect = function(name, data, selected) {
 			var container = document.getElementById('js-doc__' + name + '-select');
 			for(const[key, title] of Object.entries(data)) {
 				container.insertAdjacentHTML(
@@ -119,10 +177,20 @@ function jdDocumentation(theme = null) {
 					.replace('{' + name + 'Id}', key)
 					.replace('{' + name + 'Title}', title)
 				);
+				if (container.tagName !== 'SELECT') {
+					container.lastElementChild.addEventListener("click", function() {
+						onOptionChange(config, key, data, selected);
+					});
+				}
+			}
+			if (container.tagName === 'SELECT') {
+				container.addEventListener("change", function(e) {
+					onOptionChange(config, container.value, data, selected);
+				});
 			}
 		}
-		printSelect("version", config.versions);
-		printSelect("language", config.langs);
+		printSelect("version", config.versions, "selectedVersion");
+		printSelect("language", config.langs, "selectedLang");
 		return config;
 	}
 	/******************/
@@ -132,13 +200,37 @@ function jdDocumentation(theme = null) {
 			return parseFileVersion(menuObject, config.selectedVersion);
 		})
 		.then(function(menuObject) {
-			parseMenu(menuObject);
-			/*menuObject.querySelectorAll("div").forEach(function(element) {
-				console.log(element.tagName, element.nodeType);
-			});*/
-			// return file - selected (pokud je dostupny v jayzce), jinak prvni
-			// nebo by se daly nacist vsechny soubory a obsah nekam uklidit - hledani? - problem s verzi
+			var promises = [];
+			// TODO set lang title?
+			parseMenu(config, menuObject).forEach(function(file) {
+				promises.push(
+					load(
+						file.startsWith("http")
+						? file
+						: rootPath + "/" + config.selectedLang + "/" + file
+					)
+					.then(function(content) {
+						return {
+							file: file,
+							content: parseFileVersion(content, config.selectedVersion)
+						};
+					})
+				);
+			});
+			return Promise.all(promises);
 		})
+		.then(function(values) {
+			if (values.length === 0) {
+				throw new Error("No menu");
+			}
+			config.cache = {};
+			values.forEach(function(loaded) {
+				config.cache[loaded.file] = loaded.content;
+			});
+			config.defaultFile = values[0].file;
+			return config;
+		})
+		.then(onFileChange)
 		.catch(catchError);
 	}
 	/******************/
@@ -159,39 +251,39 @@ function jdDocumentation(theme = null) {
 			});
 		}
 		// TODO correct path
-		return load("themes/" + theme).then(function(themeContent) {
+		var themePath = "themes/";
+		return load(themePath + theme).then(function(themeContent) {
 			var themeHtml = stringToHtml(themeContent);
-			var setLink = function(element, attribute, run = false) {
-				var value = element.getAttribute(attribute);
-				if (value !== null) {
-					if (!value.startsWith("http")) {
-						element.setAttribute(attribute, "themes/" + value); // TODO correct path
-					}
-					return true;
-				} else if (run) {
-					eval(element.innerHTML);
-				}
-				return false;
-			}
 			var addELements = function(id) {
-				getTemplate(themeHtml, "#" + id).querySelectorAll("*").forEach(function(element){
-					switch (element.tagName) {
-						case "SCRIPT":
-							if (setLink(element, "src", true)) {
-								var script= document.createElement('script');
-							    script.src= element.getAttribute("src");
-							    document[id].appendChild(script);
-							};
-							break;
-						case "LINK":
-							setLink(element, "href");
-							break;
+				var template = getTemplate(themeHtml, "#" + id);
+				template.querySelectorAll("link").forEach(function(element) {
+					var value = element.getAttribute("href");
+					if (value !== null && !value.startsWith("http")) {
+						element.setAttribute("href", themePath + value);
+						return true;
 					}
-					document[id].appendChild(element);
 				});
+				template.querySelectorAll("script").forEach(function(element) {
+					var value = element.getAttribute("src");
+					var script= document.createElement('script');
+					if (value === null) {
+						script.innerHTML = element.innerHTML;
+					} else if (!value.startsWith("http")) {
+						script.src= themePath + value;
+					} else {
+						script.src= value;
+					}
+
+					var parent = element.parentElement === null ? document[id] : element.parentElement;
+					element.remove();
+					parent.appendChild(script);
+				});
+
+				document[id].append(...template.children);
 			};
 			addELements("head");
 			addELements("body");
+			document.dispatchEvent(themeContentAddedEvent);
 			return config;
 		});
 	})

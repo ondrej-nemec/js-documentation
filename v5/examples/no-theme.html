@@ -13,12 +13,27 @@
 	<template id="js-doc__version-item">
 		<option value="{versionId}">{versionTitle}</option>
 	</template>
+
 	<div>
 		Language: <select id="js-doc__language-select"></select>
 	</div>
 	<template id="js-doc__language-item">
 		<option value="{languageId}">{languageTitle}</option>
 	</template>
+
+	<div id="js-doc__menu">
+		<ul></ul>
+	</div>
+	<template class="js-doc__menu-item-0 js-doc__menu-item-1">
+		<li id="js-doc__menu-item-link">
+			<a href="#" id="js-doc__menu-item-title"></a>
+		</li>
+	</template>
+	<template class="js-doc__menu-container-0 js-doc__menu-container-1">
+		<ul id="js-doc__menu-container"></ul>
+	</template>
+
+	<div id="js-doc__body"></div>
 
 </body>
 </html>
