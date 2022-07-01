@@ -29,8 +29,9 @@ const themeContentAddedEvent = new Event("themeContentAdded");
 const scriptLoadedEvent = new Event("scriptLoaded");
 
 const thirdPartiesLibs = {
-	"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/github-dark-dimmed.min.css": null,
-	"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js": null
+	"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/github-dark-dimmed.min.css": null, // TODO will be good if not null
+	"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js": null, // TODO will be good if not null
+	"https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.0/html2pdf.bundle.min.js": null // TODO will be good if not null
 };
 
 /************************/
@@ -98,11 +99,11 @@ function jdDocumentation(theme = null) {
 		wrapper.querySelectorAll(".diff").forEach(function(element) {
 			var from = element.getAttribute("from");
 			var to = element.getAttribute("to");
-			if (selectedVersion < from) {
+			if (from !== null && selectedVersion < from) {
 				element.remove();
 				return;
 			}
-			if (selectedVersion > to) {
+			if (to !== null && selectedVersion > to) {
 				element.remove();
 				return;
 			}
@@ -240,6 +241,33 @@ function jdDocumentation(theme = null) {
 		container.append(...menuTemplate.children);
 		return files;
 	}
+	function loadResources(rootPath, container, rootElement) {
+		var setSimplyLink = function (element, attribute) {
+			container.querySelectorAll(element).forEach(function(element) {
+				var value = element.getAttribute(attribute);
+				if (value !== null && !value.startsWith(attribute)) {
+					element.setAttribute(attribute, rootPath + value);
+				}
+			});
+		};
+		setSimplyLink("link", "href");
+		setSimplyLink("img", "src");
+		
+		container.querySelectorAll("script").forEach(function(element) {
+			var value = element.getAttribute("src");
+			var script= document.createElement('script');
+			if (value === null) {
+				script.innerHTML = element.innerHTML;
+			} else if (!value.startsWith("http")) {
+				script.src= rootPath + value;
+			} else {
+				script.src= value;
+			}
+			var parent = element.parentElement === null ? rootElement : element.parentElement;
+			element.remove();
+			parent.appendChild(script);
+		});
+	}
 	/***** META *******/
 	function addMeta(data) {
 		var meta = document.createElement("meta");
@@ -323,7 +351,9 @@ function jdDocumentation(theme = null) {
 				return true;
 			};
 		});
-		document.querySelector("#js-doc__body").innerHTML = config.cache[config.selectedFile].innerHTML;
+		loadResources(config.filesPath, body, body);
+	//	document.querySelector("#js-doc__body").innerHTML = config.cache[config.selectedFile].innerHTML;
+		document.querySelector("#js-doc__body").append(...config.cache[config.selectedFile].children);
 		
 		if (typeof hljs === 'undefined') {
 			document.addEventListener("scriptLoaded", function(e) {
@@ -382,7 +412,8 @@ function jdDocumentation(theme = null) {
 		updateMeta("docsearch:version", config.selectedVersion);
 		setUrl(config);
 
-		load(rootPath + "/" + config.selectedLang + "/index.html")
+		config.filesPath = rootPath + "/" + config.selectedLang + "/";
+		load(config.filesPath + "index.html")
 		.then(function(menuObject) {
 			return parseFileVersion(menuObject, config.selectedVersion);
 		})
@@ -515,29 +546,7 @@ function jdDocumentation(theme = null) {
 			var themeHtml = stringToHtml(themeContent);
 			var addELements = function(id) {
 				var template = getTemplate(themeHtml, "#" + id);
-				template.querySelectorAll("link").forEach(function(element) {
-					var value = element.getAttribute("href");
-					if (value !== null && !value.startsWith("http")) {
-						element.setAttribute("href", themePath + value);
-						return true;
-					}
-				});
-				template.querySelectorAll("script").forEach(function(element) {
-					var value = element.getAttribute("src");
-					var script= document.createElement('script');
-					if (value === null) {
-						script.innerHTML = element.innerHTML;
-					} else if (!value.startsWith("http")) {
-						script.src= themePath + value;
-					} else {
-						script.src= value;
-					}
-
-					var parent = element.parentElement === null ? document[id] : element.parentElement;
-					element.remove();
-					parent.appendChild(script);
-				});
-
+				loadResources(themePath, template, document[id]);
 				document[id].append(...template.children);
 			};
 			addELements("head");

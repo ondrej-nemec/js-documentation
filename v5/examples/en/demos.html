@@ -1,0 +1,86 @@
+<h1>Demos</h1>
+
+<h2>Content changes</h2>
+
+<h3>Versions</h3>
+
+<div>
+	<p class="diff" to="1.1">Version 1.*</p>
+
+	<p class="diff" from="2.0">Version 2.0</p>
+
+	<p class="diff" from="1.1" to="1.1">Version 1.1</p>
+</div>
+
+<h3>Highlight source code</h3>
+
+<pre><code>
+	This is source code
+</code></pre>
+
+<h3>Links</h3>
+
+<div>
+	<p>
+		<a href="?file=a.html">This is link to first page of documetation</a>
+	</p>
+	<p>
+		<a href="https://github.com/ondrej-nemec/js-documentation">This is link to project main page</a>
+	</p>
+</div>
+
+<h3>Replacement</h3>
+
+TODO - version, language and maybe somethig else
+
+<h2>Load/Execute</h2>
+
+<h3>CSS</h3>
+
+<link href="../example-resources/demos.css" rel="stylesheet">
+<style type="text/css">
+	#style-tag {
+		display: none;
+	}
+</style>
+<div>
+	<div>Inline CSS: <span style="display: none">NOT</span> works</div>
+	<div>Style tag: <span id="style-tag">NOT</span> works</div>
+	<div>Loaded CSS: <span id="style-loaded">NOT</span> works</div>
+</div>
+
+
+<h3>JS</h3>
+
+<div>
+	<div>JS tag: <span id="js-tag">NOT</span> works</div>
+	<div>Loaded JS: <span id="js-loaded">NOT</span> works</div>
+</div>
+
+<script src="../example-resources/demos.js"></script>
+<script type="text/javascript">
+	document.querySelector("#js-tag").remove();
+	/*console.log("JS inline script executed");
+	try {
+		document.addEventListener('themeContentAdded', function() {
+			document.getElementById("head-script").style['background-color'] = "green";
+		});
+	} catch (e) {
+		console.error("head", e);
+	}*/
+</script>
+
+<h3>Pictures</h3>
+
+<div>
+	<img src="../example-resources/picture.png" alt="IMG from relative path">
+	TODO absolute path
+</div>
+
+<h2>Functions</h2>
+
+<h3>PDF</h3>
+
+<div>
+TODO
+</div>
