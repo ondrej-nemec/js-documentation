@@ -26,10 +26,11 @@ HTMLDocument.prototype.ready = function () {
 /*********************/
 // https://developer.mozilla.org/en-US/docs/Web/Events/Creating_and_triggering_events
 const themeContentAddedEvent = new Event("themeContentAdded");
+const scriptLoadedEvent = new Event("scriptLoaded");
 
 const thirdPartiesLibs = {
-	"//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/github-dark-dimmed.min.css": null,
-	"//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js": null
+	"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/github-dark-dimmed.min.css": null,
+	"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js": null
 };
 
 /************************/
@@ -117,10 +118,10 @@ function jdDocumentation(theme = null) {
 		parent.innerHTML = "";
 
 		var getContainerTemplate = function (level) {
-			return getTemplateAsContainer(document, '.js-doc__submenu-container-' + level);
+			return getTemplateAsContainer(document, '.js-doc__submenu-container-' + (level-1));
 		}
 		var getItemTemplate = function(level) {
-			return getTemplateAsContainer(document, '.js-doc__submenu-item-' + level);
+			return getTemplateAsContainer(document, '.js-doc__submenu-item-' + (level-1));
 		};
 
 		var containers = [];
@@ -264,13 +265,13 @@ function jdDocumentation(theme = null) {
 			container.innerText = value;
 		}
 	}
-	function setTitle(title) {
+	function setTitle(title, append = false) {
 		var tag = document.head.querySelector("title");
 		if (tag === null) {
 			tag = document.createElement("title");
 			document.head.appendChild(tag);
 		}
-		tag.innerText = title;
+		tag.innerText = append ? tag.innerText + " | " + title : title;
 	}
 	function setUrl(config) {
 		window.parent.history.pushState(
@@ -294,10 +295,7 @@ function jdDocumentation(theme = null) {
 			config.selectedFile = config.defaultFile;
 		}
 		setUrl(config);
-		// TODO highligh  hljs.highlightAll();
-		// TODO script
-		// TODO set lang title? - main title + page title
-		// TODO run JS
+		// TODO script / run JS
 		// TODO set current - active - config
 		/*
 		.replace(":Tag'", ":" + Doc.versions[Doc.version] + "'")
@@ -306,6 +304,10 @@ function jdDocumentation(theme = null) {
 		*/
 		var body = config.cache[config.selectedFile];
 
+		var h1 = body.querySelector("h1");
+		if (h1 !== null) {
+			setTitle(h1.innerText, true);
+		}
 		parseSubMenu(body.querySelectorAll("h1,h2,h3,h4,h5"));
 		body.querySelectorAll("a").forEach(function(a) {
 			a.onclick = function() {
@@ -322,6 +324,16 @@ function jdDocumentation(theme = null) {
 			};
 		});
 		document.querySelector("#js-doc__body").innerHTML = config.cache[config.selectedFile].innerHTML;
+		
+		if (typeof hljs === 'undefined') {
+			document.addEventListener("scriptLoaded", function(e) {
+				// TODO check if loaded is HLJS
+				hljs.highlightAll();
+			});
+		} else {
+			hljs.highlightAll();
+		}
+		
 		window.scrollTo(0, 0);
 	}
 	function onOptionChange(config, newVal, data, selected) {
@@ -469,18 +481,21 @@ function jdDocumentation(theme = null) {
 		document.addEventListener("themeContentAdded", function() {
 			setSocial("#js-doc__app-now", new Date().getFullYear());
 		});
-
+		
 		for (const[link, integrity] of Object.entries(thirdPartiesLibs)) {
 			if (link.endsWith(".css")) {
-				var icon = document.createElement("link");
-				icon.setAttribute("rel", "icon");
-				icon.setAttribute("href", link);
-				icon.setAttribute("crossorigin", "anonymous");
-				document.head.appendChild(icon);
+				var css = document.createElement("link");
+				css.setAttribute("rel", "stylesheet");
+				css.setAttribute("href", link);
+				css.setAttribute("crossorigin", "anonymous");
+				document.head.appendChild(css);
 			} else if (link.endsWith(".js")) {
 				var script = document.createElement("script");
 				script.setAttribute("src", link);
 				script.setAttribute("crossorigin", "anonymous");
+			    script.onload = function() {
+					document.dispatchEvent(scriptLoadedEvent, {link: link});
+			    };
 				if (integrity !== null) {
 					script.setAttribute("integrity", integrity);
 				}
