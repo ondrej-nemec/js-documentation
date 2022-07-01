@@ -21,17 +21,48 @@
 		<option value="{languageId}">{languageTitle}</option>
 	</template>
 
-	<div id="js-doc__menu">
-		<ul></ul>
-	</div>
-	<template class="js-doc__menu-item-0 js-doc__menu-item-1">
+	<strong>Menu</strong>
+	<div id="js-doc__menu"></div>
+	<template class="js-doc__menu-item-0 js-doc__menu-item-1 js-doc__menu-item-2">
 		<li id="js-doc__menu-item-link">
 			<a href="#" id="js-doc__menu-item-title"></a>
 		</li>
 	</template>
-	<template class="js-doc__menu-container-0 js-doc__menu-container-1">
+	<template class="js-doc__menu-container-0 js-doc__menu-container-1 js-doc__menu-container-2">
 		<ul id="js-doc__menu-container"></ul>
 	</template>
+
+	<strong>Submenu</strong>
+	<div id="js-doc__submenu"></div>
+	<template class="js-doc__submenu-item-1 js-doc__submenu-item-2 js-doc__submenu-item-3">
+		<li>
+			<a href="#" id="js-doc__submenu-item"></a>
+		</li>
+	</template>
+	<template class="js-doc__submenu-container-1 js-doc__submenu-container-2 js-doc__submenu-container-3">
+		<ul id="js-doc__submenu-container"></ul>
+	</template>
+
+
+	<fieldset>
+		<legend>Optional elements</legend>
+		<div>
+			App name: <span id="js-doc__app-name"></span>
+		</div>
+		<div>
+			<span id="js-doc__app-from"></span>
+			-
+			<span id="js-doc__app-now"></span>
+			&copy;
+			<span id="js-doc__app-author"></span>
+		</div>
+		<div>
+			Actual version: <span id="js-doc__selected-version"></span>
+		</div>
+		<div>
+			Actual language: <span id="js-doc__selected-language"></span>
+		</div>
+	</fieldset>
 
 	<div id="js-doc__body"></div>
 

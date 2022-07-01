@@ -1,5 +1,7 @@
 /* VERSION 5.0.0 */
-
+// TODO direction
+// TODO search
+// TODO download
 // https://codepad.co/snippet/document-ready-with-promise
 (function() {
   'use strict';
@@ -24,6 +26,12 @@ HTMLDocument.prototype.ready = function () {
 /*********************/
 // https://developer.mozilla.org/en-US/docs/Web/Events/Creating_and_triggering_events
 const themeContentAddedEvent = new Event("themeContentAdded");
+
+const thirdPartiesLibs = {
+	"//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/github-dark-dimmed.min.css": null,
+	"//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js": null
+};
+
 /************************/
 function jdDocumentation(theme = null) {
 	var cache = {};
@@ -65,11 +73,11 @@ function jdDocumentation(theme = null) {
 		return wrapper;
 	}
 	function getTemplateAsContainer(container, selector) {
-		var wrapper = document.createElement("div");
 		var template = getTemplate(container, selector);
 		if (template === null) {
 			return null;
 		}
+		var wrapper = document.createElement("div");
 		wrapper.append(...template.children);
 		return wrapper;
 	}
@@ -85,7 +93,6 @@ function jdDocumentation(theme = null) {
 	}
 	/******** PARSE ******/
 	function parseFileVersion(content, selectedVersion) {
-		// TODO zkontrolovat - ne vzdy jde
 		var wrapper = stringToHtml(content);
 		wrapper.querySelectorAll(".diff").forEach(function(element) {
 			var from = element.getAttribute("from");
@@ -101,10 +108,89 @@ function jdDocumentation(theme = null) {
 		});
 		return wrapper;
 	}
-	function parseMenu(config, menuObject, container = null, level = 0) {
-	//	console.log(document.querySelector('#js-doc__menu-item-' + level));
-	//	console.log(document.querySelector('#js-doc__menu-container-' + level));
+	function parseSubMenu(headlines) {
+		var parent = document.querySelector('#js-doc__submenu');
+		if (parent === null) {
+			console.warn("No submenu placeholder");
+			return;
+		}
+		parent.innerHTML = "";
 
+		var getContainerTemplate = function (level) {
+			return getTemplateAsContainer(document, '.js-doc__submenu-container-' + level);
+		}
+		var getItemTemplate = function(level) {
+			return getTemplateAsContainer(document, '.js-doc__submenu-item-' + level);
+		};
+
+		var containers = [];
+		var lastLevel = 0;
+	    var getLastContainer = function() {
+	    	return containers[containers.length-1];
+	    };
+	    var popContainer = function(level) {
+	        var container = containers.pop();
+	        var last = getLastContainer();
+	        if (last === undefined) {
+	        	parent.append(...container.children);
+	        	last = pushContainer(level);
+	        } else {
+	        	last.querySelector('#js-doc__submenu-container').append(...container.children);
+	        }
+	        return last;
+	    };
+	    var pushContainer = function(level) {
+	    	var container = getContainerTemplate(level);
+			containers.push(container);
+			return container;
+	    };
+	    var getContainer = function(level) {
+	    	if (lastLevel < level) {
+				return pushContainer(level);
+			}
+			if (lastLevel > level) {
+	            return popContainer(level);
+	        }
+	        return getLastContainer();
+	    };
+
+		headlines.forEach(function(headline, index) {
+			var level = parseInt(headline.tagName.substring(1,2));
+
+			var container = getContainer(level);
+			if (container === null) {
+				containers.pop(); // remove last null element
+				return; // level not supported
+			}
+			var itemElement = getItemTemplate(level);
+			if (itemElement === null) {
+				return; // level not supported
+			}
+
+			var id = headline.getAttribute("id");
+			if (id === null) {
+				id = headline.tagName + "-" + index;
+	       		headline.setAttribute("id", id);
+			}
+
+        	lastLevel = level;
+			// always <a>
+			var itemLink = itemElement.querySelector("a#js-doc__submenu-item");
+			itemLink.innerText = headline.innerText;
+			itemLink.setAttribute("href", "#" + id);
+
+			container.querySelector('#js-doc__submenu-container').append(...itemElement.children);
+		});
+	    while(containers.length > 0) {
+	        if (containers.length === 1) {
+	           parent.append(...containers.pop().children);
+	        } else {
+	            popContainer(0); // here no matter level
+	        }
+	    }
+	    
+	}
+	function parseMenu(config, menuObject, container = null, level = 0) {
 		if (document.querySelector('.js-doc__menu-item-' + level) === null) {
 			console.warn("No templates for menu item. Level: " + level);
 			return [];
@@ -115,48 +201,128 @@ function jdDocumentation(theme = null) {
 		}
 		if (container === null) {
 			container = document.querySelector('#js-doc__menu');
+			container.innerHTML = "";
 		}
 		if (container === null) {
 			console.warn("No menu placeholder");
 			return [];
 		}
+
 		var files = [];
 		var menuTemplate = getTemplateAsContainer(document, '.js-doc__menu-container-' + level);
-		menuObject.childNodes.forEach(function(node) {
+		var menuContainer = menuTemplate.querySelector("#js-doc__menu-container");
+
+		for (let item of menuObject.children) { // div holding list of divs
 			var menuItemTemplate = getTemplateAsContainer(document, '.js-doc__menu-item-' + level);
-			menuTemplate.append(...menuItemTemplate.children);
-			switch(node.tagName) {
-				case "SPAN":
-					menuTemplate.querySelector('#js-doc__menu-item-title').innerText = node.innerText;
-					break;
-				case "A":
-					menuTemplate.querySelector('#js-doc__menu-item-title').addEventListener("click", function(e) {
-						e.preventDefault();
-						config.selectedFile = node.innerText;
-						onFileChange(config);
-					});
-					files.push(node.innerText);
-					break;
-				case "DIV":
-					//console.log("submenu");
-					files.push(...parseMenu(config, node, menuItemTemplate, level + 1));
-					break;
-				case undefined:
-				default: break;
+			for (let node of item.children) {
+				switch(node.tagName) {
+					case "SPAN":
+						menuItemTemplate.querySelector('#js-doc__menu-item-title').innerText = node.innerText;
+						break;
+					case "A":
+						menuItemTemplate.querySelector('#js-doc__menu-item-link').addEventListener("click", function(e) {
+							e.preventDefault();
+							config.selectedFile = node.innerText;
+							onFileChange(config);
+						});
+						files.push(node.innerText);
+						break;
+					case "DIV":
+						files.push(...parseMenu(config, node, menuItemTemplate.querySelector('#js-doc__menu-item-link'), level + 1));
+						break;
+					case undefined:
+					default: break;
+				}
 			}
-		});
+			menuContainer.append(...menuItemTemplate.children);
+		}
 		container.append(...menuTemplate.children);
 		return files;
+	}
+	/***** META *******/
+	function addMeta(data) {
+		var meta = document.createElement("meta");
+		for (const[name, value] of Object.entries(data)) {
+			meta.setAttribute(name, value);
+		}
+		document.head.appendChild(meta);
+	}
+	function updateMeta(name, content) {
+		var meta = document.head.querySelector("meta[name='" + name + "']");
+		if (meta === null) {
+			addMeta({
+				name: name,
+				content: content
+			});
+		} else {
+			meta.setAttribute("content", content);
+		}
+	}
+	function setSocial(selector, value) {
+		var container = document.querySelector(selector);
+		if (container !== null) {
+			container.innerText = value;
+		}
+	}
+	function setTitle(title) {
+		var tag = document.head.querySelector("title");
+		if (tag === null) {
+			tag = document.createElement("title");
+			document.head.appendChild(tag);
+		}
+		tag.innerText = title;
+	}
+	function setUrl(config) {
+		window.parent.history.pushState(
+			{"html":window.location.href},
+			"", 
+			"?version=" + config.selectedVersion + "&lang=" + config.selectedLang + "&file=" + config.selectedFile + location.hash
+		);
+	}
+	function setIcon(icon) {
+		var tag = document.head.querySelector("link[rel=icon]");
+		if (tag === null) {
+			tag = document.createElement("link");
+			tag.setAttribute("rel", "icon");
+			tag.setAttribute("href", icon);
+			document.head.appendChild(tag);
+		}
 	}
 	/********** CHANGE  ************/
 	function onFileChange(config) {
 		if (config.selectedFile === null || !config.cache.hasOwnProperty(config.selectedFile)) {
 			config.selectedFile = config.defaultFile;
 		}
-		// TODO highligh
+		setUrl(config);
+		// TODO highligh  hljs.highlightAll();
 		// TODO script
 		// TODO set lang title? - main title + page title
+		// TODO run JS
+		// TODO set current - active - config
+		/*
+		.replace(":Tag'", ":" + Doc.versions[Doc.version] + "'")
+				.replace("<h1>", '<h1 class="bd-title">')
+				.replace('<p class="introduction">', '<p class="bd-lead">');
+		*/
+		var body = config.cache[config.selectedFile];
+
+		parseSubMenu(body.querySelectorAll("h1,h2,h3,h4,h5"));
+		body.querySelectorAll("a").forEach(function(a) {
+			a.onclick = function() {
+				if (a.getAttribute("href").startsWith("http")) {
+					window.parent.location = a.getAttribute("href");
+					return false;
+				}
+				if (a.getAttribute("href").startsWith("?file")) {
+					config.selectedFile = a.getAttribute("href").substring(6);
+					onFileChange(config);
+					return false;
+				}
+				return true;
+			};
+		});
 		document.querySelector("#js-doc__body").innerHTML = config.cache[config.selectedFile].innerHTML;
+		window.scrollTo(0, 0);
 	}
 	function onOptionChange(config, newVal, data, selected) {
 		if (data.hasOwnProperty(newVal)) {
@@ -195,13 +361,25 @@ function jdDocumentation(theme = null) {
 	}
 	/******************/
 	function setBody(config) {
+		/*
+		// TODO set direction
+		*/
+		setSocial('#js-doc__selected-version', config.versions[config.selectedVersion]);
+		setSocial('#js-doc__selected-language', config.langs[config.selectedLang]);
+		updateMeta("docsearch:language", config.selectedLang);
+		updateMeta("docsearch:version", config.selectedVersion);
+		setUrl(config);
+
 		load(rootPath + "/" + config.selectedLang + "/index.html")
 		.then(function(menuObject) {
 			return parseFileVersion(menuObject, config.selectedVersion);
 		})
 		.then(function(menuObject) {
 			var promises = [];
-			// TODO set lang title?
+			var title = menuObject.querySelector("title");
+			if (title !== null) {
+				setTitle(title.innerText);
+			}
 			parseMenu(config, menuObject).forEach(function(file) {
 				promises.push(
 					load(
@@ -244,8 +422,74 @@ function jdDocumentation(theme = null) {
 		return config;
 	})
 	.then(function(config) {
-		// TODO meta data
+		var optionalSet = [];
+		if (config.hasOwnProperty("name")) {
+			addMeta({
+				"property": "og:title",
+				"content": config.name
+			});
+			addMeta({
+				"property": "twitter:title",
+				"content": config.name
+			});
+			setTitle(config.name);
+			document.addEventListener("themeContentAdded", function() {
+				setSocial("#js-doc__app-name", config.name);
+			});
+		}
+		if (config.hasOwnProperty("description")) {
+			addMeta({
+				"name": "description",
+				"content": config.description
+			});
+			addMeta({
+				"property": "twitter:description",
+				"content": config.description
+			});
+		}
+		if (config.hasOwnProperty("author")) {
+			addMeta({
+				"property": "author",
+				"content": config.author
+			});
+			document.addEventListener("themeContentAdded", function() {
+				setSocial("#js-doc__app-author", config.author);
+			});
+		}
+		if (config.hasOwnProperty("from")) {
+			document.addEventListener("themeContentAdded", function() {
+				setSocial("#js-doc__app-from", config.from);
+			});
+		}
+		if (config.hasOwnProperty("icon")) {
+			//addMeta(); // not requred - icon is enought
+			setIcon(config.icon);
+		}
+		addMeta({"charset": "utf-8"});
+		document.addEventListener("themeContentAdded", function() {
+			setSocial("#js-doc__app-now", new Date().getFullYear());
+		});
+
+		for (const[link, integrity] of Object.entries(thirdPartiesLibs)) {
+			if (link.endsWith(".css")) {
+				var icon = document.createElement("link");
+				icon.setAttribute("rel", "icon");
+				icon.setAttribute("href", link);
+				icon.setAttribute("crossorigin", "anonymous");
+				document.head.appendChild(icon);
+			} else if (link.endsWith(".js")) {
+				var script = document.createElement("script");
+				script.setAttribute("src", link);
+				script.setAttribute("crossorigin", "anonymous");
+				if (integrity !== null) {
+					script.setAttribute("integrity", integrity);
+				}
+				document.head.appendChild(script);
+			}
+		}
+
 		if (theme === null) {
+			document.dispatchEvent(themeContentAddedEvent);
 			return document.ready().then(function(doc) {
 				return config;
 			});

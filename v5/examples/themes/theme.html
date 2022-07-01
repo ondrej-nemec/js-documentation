@@ -1,5 +1,4 @@
 <template id="head">
-	<link rel="icon" href="https://raw.githubusercontent.com/ondrej-nemec/TOTI/master/logo.jpg">
 
 	<link href="theme.css" rel="stylesheet">
 	<style type="text/css">
@@ -52,6 +51,26 @@
 		}
 	</script>
 
+	<fieldset>
+		<legend>Optional elements</legend>
+		<div>
+			App name: <span id="js-doc__app-name"></span>
+		</div>
+		<div>
+			<span id="js-doc__app-from"></span>
+			-
+			<span id="js-doc__app-now"></span>
+			&copy;
+			<span id="js-doc__app-author"></span>
+		</div>
+		<div>
+			Actual version: <span id="js-doc__selected-version"></span>
+		</div>
+		<div>
+			Actual language: <span id="js-doc__selected-language"></span>
+		</div>
+	</fieldset>
+
 	<div>
 		<div style="float: left">
 			Version:  <br>
@@ -61,6 +80,8 @@
 			Language:  <br>
 			<ul id="js-doc__language-select"></ul>
 		</div>
+		<div style="float: right" id="js-doc__menu"></div>
+		<div style="float: right" id="js-doc__submenu"></div>
 	</div>
 	<div style="clear: both"></div>
 
@@ -71,8 +92,24 @@
 		<li>{languageTitle}</li>
 	</template>
 
+	<template class="js-doc__menu-item-0 js-doc__menu-item-1 js-doc__menu-item-2">
+		<div id="js-doc__menu-item-link">
+			<span style="cursor: pointer; margin-left: 1em;" id="js-doc__menu-item-title"></span>
+		</div>
+	</template>
+	<template class="js-doc__menu-container-0 js-doc__menu-container-1 js-doc__menu-container-2">
+		<div id="js-doc__menu-container" style="float: right"></div>
+	</template>
 
-	<div id="js-doc__menu"></div>
+	<template class="js-doc__submenu-item-0 js-doc__submenu-item-1 js-doc__submenu-item-2">
+		<div id="js-doc__submenu-item-link">
+			<span style="cursor: pointer; margin-left: 1em;" id="js-doc__submenu-item-title"></span>
+		</div>
+	</template>
+	<template class="js-doc__submenu-container-0 js-doc__submenu-container-1 js-doc__submenu-container-2">
+		<div id="js-doc__submenu-container" style="float: right"></div>
+	</template>
+
 
 	<div id="js-doc__body"></div>
 </template>

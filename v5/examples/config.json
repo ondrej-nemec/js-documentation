@@ -8,5 +8,10 @@
 		"2.0": "2.0.0",
 		"1.1": "1.1.20",
 		"1.0": "1.0.1"
-	}
+	},
+	"name": "Doc example",
+	"icon": "https://raw.githubusercontent.com/ondrej-nemec/TOTI/master/logo.jpg",
+	"description": "Example documentation project",
+	"from": 2022,
+	"author": "Ondřej Němec"
 }
