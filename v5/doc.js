@@ -323,7 +323,6 @@ function jdDocumentation(theme = null) {
 			config.selectedFile = config.defaultFile;
 		}
 		setUrl(config);
-		// TODO script / run JS
 		// TODO set current - active - config
 		/*
 		.replace(":Tag'", ":" + Doc.versions[Doc.version] + "'")
@@ -352,7 +351,6 @@ function jdDocumentation(theme = null) {
 			};
 		});
 		loadResources(config.filesPath, body, body);
-	//	document.querySelector("#js-doc__body").innerHTML = config.cache[config.selectedFile].innerHTML;
 		document.querySelector("#js-doc__body").append(...config.cache[config.selectedFile].children);
 		
 		if (typeof hljs === 'undefined') {
