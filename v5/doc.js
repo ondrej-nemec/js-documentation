@@ -1,6 +1,4 @@
 /* VERSION 5.0.0 */
-// TODO direction
-// TODO search
 // TODO download
 // https://codepad.co/snippet/document-ready-with-promise
 (function() {
@@ -245,7 +243,7 @@ function jdDocumentation(theme = null) {
 		var setSimplyLink = function (element, attribute) {
 			container.querySelectorAll(element).forEach(function(element) {
 				var value = element.getAttribute(attribute);
-				if (value !== null && !value.startsWith(attribute)) {
+				if (value !== null && !value.startsWith("http")) {
 					element.setAttribute(attribute, rootPath + value);
 				}
 			});
@@ -317,6 +315,43 @@ function jdDocumentation(theme = null) {
 			document.head.appendChild(tag);
 		}
 	}
+	/****** SEARCH **********/
+	function searchPhrase(config, phrase) {
+		var searchItem = getTemplateAsContainer(document, '#js-doc__search-item'); // document.querySelector('#js-doc__search-item');
+		if (searchItem === null) {
+			console.warn("No search template");
+			return;
+		}
+		document.querySelector("#js-doc__body").innerHTML = "";;
+		for (const[file, content] of Object.entries(config.cache)) {
+			var text = content.innerText.toUpperCase();
+			var seachingFor = phrase.toUpperCase();
+
+			var res = "";
+			var indexOccurence = text.indexOf(seachingFor, 0);
+			while(indexOccurence >= 0) {
+				if (res !== "") {
+					res += "<i>...</i>";
+				}
+				res += content.innerText.substring(Math.max(0, indexOccurence-20), indexOccurence);
+				res += "<b>" + content.innerText.substring(indexOccurence, indexOccurence + phrase.length) + "</b>";
+				res += content.innerText.substring(indexOccurence + phrase.length, Math.min(indexOccurence + phrase.length + 20), phrase.length);
+
+				indexOccurence = text.indexOf(seachingFor, indexOccurence + 1);
+			}
+			if (res !== "") {
+				var template = searchItem.cloneNode(true);
+				var h1 = content.querySelector("h1");
+				template.querySelector("#js-doc__search-item-title").innerText = h1 === null ? "" : h1.innerText;
+				template.querySelector("#js-doc__search-item-title").addEventListener("click", function() {
+					config.selectedFile = file;
+					onFileChange(config);
+				});
+				template.querySelector("#js-doc__search-item-example").innerHTML = res;
+				document.querySelector("#js-doc__body").append(...template.children);
+			}
+		}
+	}
 	/********** CHANGE  ************/
 	function onFileChange(config) {
 		if (config.selectedFile === null || !config.cache.hasOwnProperty(config.selectedFile)) {
@@ -351,17 +386,22 @@ function jdDocumentation(theme = null) {
 			};
 		});
 		loadResources(config.filesPath, body, body);
-		document.querySelector("#js-doc__body").append(...config.cache[config.selectedFile].children);
 		
 		if (typeof hljs === 'undefined') {
 			document.addEventListener("scriptLoaded", function(e) {
-				// TODO check if loaded is HLJS
-				hljs.highlightAll();
+				hljs.highlightAll(); // TODO check if loaded is HLJS ?
 			});
 		} else {
 			hljs.highlightAll();
 		}
-		
+		document.querySelector("#js-doc__body").innerHTML = "";
+		document.querySelector("#js-doc__body").append(...body.cloneNode(true).children);
+
+		document.querySelector("#js-doc__body").querySelectorAll('.js-doc__pdf-page').forEach(function(button) {
+			button.addEventListener('click', function() {
+				pageDownload(config, config.selectedFile);
+			});
+		});
 		window.scrollTo(0, 0);
 	}
 	function onOptionChange(config, newVal, data, selected) {
@@ -381,7 +421,7 @@ function jdDocumentation(theme = null) {
 					"beforeend",
 					getTemplateAsContainer(document, '#js-doc__' + name + '-item').innerHTML
 					.replace('{' + name + 'Id}', key)
-					.replace('{' + name + 'Title}', title)
+					.replace('{' + name + 'Title}', (typeof title === "object" ? title.title : title))
 				);
 				if (container.tagName !== 'SELECT') {
 					container.lastElementChild.addEventListener("click", function() {
@@ -401,13 +441,12 @@ function jdDocumentation(theme = null) {
 	}
 	/******************/
 	function setBody(config) {
-		/*
-		// TODO set direction
-		*/
 		setSocial('#js-doc__selected-version', config.versions[config.selectedVersion]);
-		setSocial('#js-doc__selected-language', config.langs[config.selectedLang]);
-		updateMeta("docsearch:language", config.selectedLang);
+		setSocial('#js-doc__selected-language', config.getLanguageTitle());
+		updateMeta("docsearch:language", config.getLanguageTitle());
 		updateMeta("docsearch:version", config.selectedVersion);
+
+		document.body.setAttribute("dir", config.getLanguageDirection());
 		setUrl(config);
 
 		config.filesPath = rootPath + "/" + config.selectedLang + "/";
@@ -453,12 +492,82 @@ function jdDocumentation(theme = null) {
 		.catch(catchError);
 	}
 	/******************/
+	function pageDownload(config, file) {
+		var body = config.cache[file];
+
+		var title = body.querySelector("h1").innerText;
+		var titleElement = document.createElement("h1");
+		titleElement.innerText = title;
+
+		var titlePage = document.createElement("div");
+		titlePage.appendChild(titleElement);
+		titlePage.style['text-align'] = "center";
+
+	//	parseSubMenu(body.querySelectorAll("h1,h2,h3,h4,h5"));
+		/*body.querySelectorAll("a").forEach(function(a) {
+			a.onclick = function() {
+				if (a.getAttribute("href").startsWith("http")) {
+					window.parent.location = a.getAttribute("href");
+					return false;
+				}
+				if (a.getAttribute("href").startsWith("?file")) {
+					config.selectedFile = a.getAttribute("href").substring(6);
+					onFileChange(config);
+					return false;
+				}
+				return true;
+			};
+		});*/
+		loadResources(config.filesPath, body, body);
+		hljs.highlightAll();
+
+		var separator = document.createElement("div");
+		separator.setAttribute("class", "html2pdf__page-break");
+
+		var data = document.createElement("div");
+		data.appendChild(titlePage);
+		data.appendChild(separator);
+
+		var bodyCopy = body.cloneNode(true);
+		bodyCopy.querySelectorAll('.js-doc__download-exclude').forEach(function(el) {
+			el.remove();
+		});
+		data.append(...bodyCopy.children);
+
+		html2pdf().set({
+	      margin: 10,
+	      filename: title + ".pdf",
+	      image: { type: "jpeg", quality: 1 },
+	      html2canvas: {
+	      	scale: 2,
+			dpi: 300,
+			letterRendering: true,
+			useCORS: true
+	      },
+	      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+	    }).from(data).save();
+	}
+	/******************/
 	load(rootPath + "/config.json")
 	.then(function (response) {
 		var config = JSON.parse(response);
 		var params = new URLSearchParams(window.location.search);
 		config.selectedLang = getFromUrl(params, "lang", config.langs);
 		config.selectedVersion = getFromUrl(params, "version", config.versions);
+		config.getLanguageTitle = function() {
+			var selected = config.langs[config.selectedLang];
+			if (typeof selected === "object") {
+				return selected["title"];
+			}
+			return selected;
+		};
+		config.getLanguageDirection = function() {
+			var selected = config.langs[config.selectedLang];
+			if (typeof selected === "object") {
+				return selected["direction"];
+			}
+			return "ltr";
+		};
 		config.selectedFile = params.get("file");
 		return config;
 	})
@@ -552,6 +661,13 @@ function jdDocumentation(theme = null) {
 			document.dispatchEvent(themeContentAddedEvent);
 			return config;
 		});
+	})
+	.then(function(config) {
+		var search = document.querySelector('#js-doc__search-input');
+		search.addEventListener("change", function(e) {
+			searchPhrase(config, search.value);
+		});
+		return config;
 	})
 	.then(printStatic)
 	.then(setBody)

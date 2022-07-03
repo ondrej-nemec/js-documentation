@@ -1,43 +1,33 @@
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <script src="https://unpkg.com/pdf-lib@1.4.0"></script>
-    <script src="https://unpkg.com/downloadjs@1.4.7"></script>
-  </head>
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="http://cdn.static.runoob.com/libs/jquery/1.10.2/jquery.min.js"></script>
+</head>
+<body>
+    <div>
+        <button id="savepdf">
+            savepdf
+        </button>
+        <h1>Headline</h1>
+        <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. In convallis. Praesent vitae arcu tempor neque lacinia pretium. In convallis. Nulla quis diam. Pellentesque sapien. Proin mattis lacinia justo. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. In dapibus augue non sapien. Aliquam erat volutpat. Duis sapien nunc, commodo et, interdum suscipit, sollicitudin et, dolor. Nullam justo enim, consectetuer nec, ullamcorper ac, vestibulum in, elit.</p>
 
-  <body>
-    <p>Click the button to create a new PDF document with <code>pdf-lib</code></p>
-    <button onclick="createPdf()">Create PDF</button>
-    <p class="small">(Your browser will download the resulting file)</p>
-  </body>
-
-  <script>
-    const { PDFDocument, StandardFonts, rgb } = PDFLib
-
-    async function createPdf() {
-      // Create a new PDFDocument
-      const pdfDoc = await PDFDocument.create();
-      // Embed the Times Roman font
-      const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
-      // Add a blank page to the document
-      const page = pdfDoc.addPage();
-      // Get the width and height of the page
-      const { width, height } = page.getSize();
-      // Draw a string of text toward the top of the page
-      const fontSize = 30
-      page.drawText('<h1>Creating PDFs in JavaScript is awesome!</h1>', {
-        x: 50,
-        y: height - 4 * fontSize,
-        size: fontSize,
-        font: timesRomanFont,
-        color: rgb(0, 0.53, 0.71),
-      });
-
-      // Serialize the PDFDocument to bytes (a Uint8Array)
-      const pdfBytes = await pdfDoc.save();
-
-			// Trigger the browser to download the PDF document
-      download(pdfBytes, "pdf-lib_creation_example.pdf", "application/pdf");
-    }
-  </script>
+        <p>Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Nullam sapien sem, ornare ac, nonummy non, lobortis a enim. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Aliquam erat volutpat. Phasellus faucibus molestie nisl. Sed vel lectus. Donec odio tempus molestie, porttitor ut, iaculis quis, sem. Fusce aliquam vestibulum ipsum. Sed vel lectus. Donec odio tempus molestie, porttitor ut, iaculis quis, sem. Aliquam id dolor. Aliquam ante. Etiam neque. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+    </div>
+    <script>
+        var doc = new jsPDF();
+        var specialElementHandlers = {
+            '#editor': function (element, renderer) {
+                return true;
+            }
+        };
+        $('#savepdf').click(function(){
+            doc.fromHTML($('body').get(0), 15, 15, {
+                'width': 170,
+                'elementHandlers': specialElementHandlers
+            });
+            doc.save('test.pdf');
+        })
+    </script>
+</body>
 </html>
