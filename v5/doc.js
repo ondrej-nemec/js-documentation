@@ -1,5 +1,4 @@
 /* VERSION 5.0.0 */
-// TODO download
 // https://codepad.co/snippet/document-ready-with-promise
 (function() {
   'use strict';
@@ -317,7 +316,7 @@ function jdDocumentation(theme = null) {
 	}
 	/****** SEARCH **********/
 	function searchPhrase(config, phrase) {
-		var searchItem = getTemplateAsContainer(document, '#js-doc__search-item'); // document.querySelector('#js-doc__search-item');
+		var searchItem = getTemplateAsContainer(document, '#js-doc__search-item');
 		if (searchItem === null) {
 			console.warn("No search template");
 			return;
@@ -397,11 +396,12 @@ function jdDocumentation(theme = null) {
 		document.querySelector("#js-doc__body").innerHTML = "";
 		document.querySelector("#js-doc__body").append(...body.cloneNode(true).children);
 
-		document.querySelector("#js-doc__body").querySelectorAll('.js-doc__pdf-page').forEach(function(button) {
+		// TODO download pdf
+		/*document.querySelector("#js-doc__body").querySelectorAll('.js-doc__pdf-page').forEach(function(button) {
 			button.addEventListener('click', function() {
 				pageDownload(config, config.selectedFile);
 			});
-		});
+		});*/
 		window.scrollTo(0, 0);
 	}
 	function onOptionChange(config, newVal, data, selected) {
@@ -490,62 +490,6 @@ function jdDocumentation(theme = null) {
 		})
 		.then(onFileChange)
 		.catch(catchError);
-	}
-	/******************/
-	function pageDownload(config, file) {
-		var body = config.cache[file];
-
-		var title = body.querySelector("h1").innerText;
-		var titleElement = document.createElement("h1");
-		titleElement.innerText = title;
-
-		var titlePage = document.createElement("div");
-		titlePage.appendChild(titleElement);
-		titlePage.style['text-align'] = "center";
-
-	//	parseSubMenu(body.querySelectorAll("h1,h2,h3,h4,h5"));
-		/*body.querySelectorAll("a").forEach(function(a) {
-			a.onclick = function() {
-				if (a.getAttribute("href").startsWith("http")) {
-					window.parent.location = a.getAttribute("href");
-					return false;
-				}
-				if (a.getAttribute("href").startsWith("?file")) {
-					config.selectedFile = a.getAttribute("href").substring(6);
-					onFileChange(config);
-					return false;
-				}
-				return true;
-			};
-		});*/
-		loadResources(config.filesPath, body, body);
-		hljs.highlightAll();
-
-		var separator = document.createElement("div");
-		separator.setAttribute("class", "html2pdf__page-break");
-
-		var data = document.createElement("div");
-		data.appendChild(titlePage);
-		data.appendChild(separator);
-
-		var bodyCopy = body.cloneNode(true);
-		bodyCopy.querySelectorAll('.js-doc__download-exclude').forEach(function(el) {
-			el.remove();
-		});
-		data.append(...bodyCopy.children);
-
-		html2pdf().set({
-	      margin: 10,
-	      filename: title + ".pdf",
-	      image: { type: "jpeg", quality: 1 },
-	      html2canvas: {
-	      	scale: 2,
-			dpi: 300,
-			letterRendering: true,
-			useCORS: true
-	      },
-	      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
-	    }).from(data).save();
 	}
 	/******************/
 	load(rootPath + "/config.json")
