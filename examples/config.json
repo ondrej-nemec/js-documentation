@@ -1,7 +1,13 @@
 {
 	"langs": {
-		"en": "English",
-		"cs": "Čeština",
+		"en": {
+			"title": "English",
+			"direction": "ltr"
+		},
+		"ar": {
+			"title": "عربي",
+			"direction": "rtl"
+		},
 		"es": "Spanish"
 	},
 	"versions": {
