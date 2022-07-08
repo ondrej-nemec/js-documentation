@@ -8,7 +8,7 @@ JS framework for displaying documentation using Github pages or any web server.
  * Support for languages
  * Support for reading direction (LTR and RTL)
  * Support for versions
- * Code highlight (using [Highlight 11.3](https://highlightjs.org/) )
+ * Code highlight (using [Highlight 11.3](https://highlightjs.org/))
  * Predefined themes or custom themes
  * Search
 
@@ -16,7 +16,7 @@ JS framework for displaying documentation using Github pages or any web server.
 
 In root of documentation is HTML file (probably `index.html`), `config.json` file with configuration and directory for every supported language.
 
-Fill example is available in [Example folder](example).
+Fill example is available in [Example folder](examples).
 
 ### HTML file
 
@@ -151,13 +151,23 @@ jdDocumentation("bootstrap-light");
 
 Predefined themes:
 
+<table>
+	<tr>
+		<td>
+			**Bootstrap Lighth**
 
-TODO
-  * [https://getbootstrap.com/docs/5.1/getting-started/introduction/](Bootstrap 5.1)
+			[View](https://ondrej-nemec.github.io/js-documentation/examples/galery-bootstrap-light.html)
 
- View in [Github Pages](https://ondrej-nemec.github.io/js-documentation/examples/galery.html) or directly on [Github](https://ondrej-nemec.github.io/js-documentation/examples/galery.html) 
-* [Your GitHub Pages URL and adding preview to your README.md](/examples/galery.html)
+			Name: *bootstrap-light*
 
+			Third parties:
+
+			 * [Bootstrap 5.1](https://getbootstrap.com/docs/5.1/getting-started/introduction/)
+
+		</td>
+	</tr>
+
+</table>
 
 ## Theme in external file
 
