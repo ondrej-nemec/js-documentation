@@ -379,6 +379,7 @@ function jdDocumentation(theme = null) {
 		if (config.selectedFile === null || !config.cache.hasOwnProperty(config.selectedFile)) {
 			config.selectedFile = config.defaultFile;
 		}
+		setTitle(config.name); // if overridden
 		setUrl(config);
 		var body = config.cache[config.selectedFile];
 
@@ -430,7 +431,7 @@ function jdDocumentation(theme = null) {
 			config[selected] = newVal;
 			setBody(config);
 		} else {
-			// TODO show error
+			catchError("Not existing select");
 		}
 	}
 	/******* PRINTING ********/
