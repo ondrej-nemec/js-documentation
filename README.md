@@ -12,16 +12,18 @@ JS framework for displaying documentation using Github pages or any web server.
  * Predefined themes or custom themes
  * Search
 
- * [Usage](usage)
-   * [HTML file](html-file)
-   * [config.json](config-json)
-   * [Language directory](language-directory)
- * [Version control](version-control)
- * [Prepared themes](using-prepared-themes)
-   * [Themes](themes)
- * [Theme in external file](theme-in-external-file)
- * [Theme in main file](theme-in-main-file)
- * [Custom theme](custom-theme)
+## Table of content
+
+ * [Usage](#usage)
+   * [HTML file](#html-file)
+   * [config.json](#config-json)
+   * [Language directory](#language-directory)
+ * [Version control](#version-control)
+ * [Prepared themes](#using-prepared-themes)
+   * [Themes](#themes)
+ * [Theme in external file](#theme-in-external-file)
+ * [Theme in main file](#theme-in-main-file)
+ * [Custom theme](#custom-theme)
 
 ## Usage
 
