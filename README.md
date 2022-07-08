@@ -12,6 +12,17 @@ JS framework for displaying documentation using Github pages or any web server.
  * Predefined themes or custom themes
  * Search
 
+ * [Usage](usage)
+   * [HTML file](html-file)
+   * [config.json](config-json)
+   * [Language directory](language-directory)
+ * [Version control](version-control)
+ * [Prepared themes](using-prepared-themes)
+   * [Themes](themes)
+ * [Theme in external file](theme-in-external-file)
+ * [Theme in main file](theme-in-main-file)
+ * [Custom theme](custom-theme)
+
 ## Usage
 
 In root of documentation is HTML file (probably `index.html`), `config.json` file with configuration and directory for every supported language.
@@ -153,8 +164,10 @@ jdDocumentation("bootstrap-light");
 	<tr>
 		<td>
 			<strong>Bootstrap Light</strong> <br>
-			<img src="preview/bootstrap-light.PNG"> <br>
-			<a href="https://ondrej-nemec.github.io/js-documentation/examples/galery-bootstrap-light.html">View</a> <br>
+			<a href="https://ondrej-nemec.github.io/js-documentation/examples/galery-bootstrap-light.html">
+				<img src="preview/bootstrap-light.PNG"> <br>
+				View
+			</a> <br>
 			<strong>Name:</strong> <i>bootstrap-light</i> <br>
 			<strong>Third parties:</strong>
 			<ul>
