@@ -149,12 +149,11 @@ jdDocumentation("bootstrap-light");
 
 ### Themes
 
-Predefined themes:
-
 <table>
 	<tr>
 		<td>
 			<strong>Bootstrap Light</strong> <br>
+			<img src="preview/bootstrap-light.PNG"> <br>
 			<a href="https://ondrej-nemec.github.io/js-documentation/examples/galery-bootstrap-light.html">View</a> <br>
 			<strong>Name:</strong> <i>bootstrap-light</i> <br>
 			<strong>Third parties:</strong>
