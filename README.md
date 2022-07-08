@@ -154,16 +154,13 @@ Predefined themes:
 <table>
 	<tr>
 		<td>
-			**Bootstrap Lighth**
-
-			[View](https://ondrej-nemec.github.io/js-documentation/examples/galery-bootstrap-light.html)
-
-			Name: *bootstrap-light*
-
-			Third parties:
-
-			 * [Bootstrap 5.1](https://getbootstrap.com/docs/5.1/getting-started/introduction/)
-
+			<strong>Bootstrap Light</strong> <br>
+			<a href="https://ondrej-nemec.github.io/js-documentation/examples/galery-bootstrap-light.html">View</a> <br>
+			<strong>Name:</strong> <i>bootstrap-light</i> <br>
+			<strong>Third parties:</strong>
+			<ul>
+				<li><a href="https://getbootstrap.com/docs/5.1/getting-started/introduction/">Bootstrap 5.1</a></li>
+			</ul>
 		</td>
 	</tr>
 
