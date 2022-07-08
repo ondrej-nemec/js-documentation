@@ -79,6 +79,19 @@
 				<li><a id="{languageId}" class="dropdown-item" href="#">{languageTitle}</a></li>
 			</template>
 
+			<div class="dropdown ms-3">
+				<span class="algolia-autocomplete" style="position: relative; display: inline-block; direction: ltr;">
+					<input id="js-doc__search-input" type="search" class="form-control ds-input" id="search-input" placeholder="Search docs..." aria-label="Search docs for..." autocomplete="off" data-bd-docs-version="5.1" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-owns="algolia-autocomplete-listbox-0" dir="auto" style="position: relative; vertical-align: top;">
+				</span>
+			</div>
+
+			<template id="js-doc__search-item">
+				<div>
+					<h3 id="js-doc__search-item-title"></h3>
+					<div id="js-doc__search-item-example"></div>
+				</div>
+			</template>
+
 			<button class="btn bd-sidebar-toggle d-md-none py-0 px-1 ms-3 order-3 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#js-doc__menu" aria-controls="js-doc__menu" aria-expanded="false" aria-label="Toggle docs navigation">
 				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="bi bi-expand" fill="currentColor" viewBox="0 0 16 16">
 					<title>Expand</title>
