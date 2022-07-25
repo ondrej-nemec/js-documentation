@@ -102,7 +102,7 @@ The menu file is HTML file, but more accurate it is XML menu configuration.
 
 The file contains list of `<div>` elements. One element - one menu item. The menu item must contains `<span>` (inner text is item title). Then must contains `<a>` or `<div>`.
 
-If menu item contains `<a>`, the **inner text** is used as link. The link can be relative to another file in directory or absolute.
+If menu item contains `<a>`, the **inner text** is used as link. The link can be relative to another file in directory or absolute. If `<a>` contains attribure `location`, link redirect to given page instead of loading content.
 
 If menu item contans `<div>`, the menu item contains submenu. The `<div>` contains list of `<div>` and works same as root menu (recursive). The allowed deep depends on theme.
 

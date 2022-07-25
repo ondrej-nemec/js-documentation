@@ -1,4 +1,9 @@
-/* VERSION 5.0.0 */
+/* VERSION 5.1.0 */
+/*
+TODO
+- absolute link - licence not working
+- Pokud je požadavek bez /index.html hledá config o úroveň výš
+*/
 /*
 # Custom events:
  - themeContentAdded: after theme is loaded
@@ -36,7 +41,7 @@ const thirdPartiesLibs = {
 /************************/
 function jdDocumentation(theme = null) {
 	var cache = {};
-	var rootPath = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+	var rootPath = window.location.origin + window.location.pathname.substring(0,  window.location.pathname.lastIndexOf('/'));
 	/******************/
 	function load(url, method = "get") {
 		return new Promise(function (resolve, reject) {
@@ -239,13 +244,22 @@ function jdDocumentation(theme = null) {
 						menuItemTemplate.querySelector('#js-doc__menu-item-title').innerText = node.innerText;
 						break;
 					case "A":
-						menuItemTemplate.querySelector('#js-doc__menu-item-link').addEventListener("click", function(e) {
-							e.preventDefault();
-							config.selectedFile = node.innerText;
-							onFileChange(config);
-						});
-						menuItemTemplate.querySelector('#js-doc__menu-item-link').setAttribute("link", node.innerText);
-						files.push(node.innerText);
+						if (node.getAttribute('location') === null) {
+							menuItemTemplate.querySelector('#js-doc__menu-item-link').addEventListener("click", function(e) {
+								e.preventDefault();
+								config.selectedFile = node.innerText;
+								onFileChange(config);
+							});
+							files.push(node.innerText);
+							menuItemTemplate.querySelector('#js-doc__menu-item-link').setAttribute("link", node.innerText);
+						} else {
+							// for <a>
+							menuItemTemplate.querySelector('#js-doc__menu-item-title').setAttribute("href", node.innerText);
+							// for non <a> links
+							menuItemTemplate.querySelector('#js-doc__menu-item-link').addEventListener("click", function(e) {
+								window.location = node.innerText;
+							});
+						}
 						break;
 					case "DIV":
 						isSubmenu = true;
@@ -277,7 +291,9 @@ function jdDocumentation(theme = null) {
 			var value = element.getAttribute("src");
 			var script= document.createElement('script');
 			if (value === null) {
-				script.innerHTML = element.innerHTML;
+				if (!element.innerHTML.includes('jdDocumentation()')) {
+					script.innerHTML = element.innerHTML;
+				}
 			} else if (!value.startsWith("http")) {
 				script.src= rootPath + value;
 			} else {
@@ -374,6 +390,47 @@ function jdDocumentation(theme = null) {
 			}
 		}
 	}
+	/********** PRINT *************/
+	function createPrintMenu() {
+		// TODO menu
+		// link with # works
+		var title = document.createElement("h1");
+		title.innerText = "Table of content"; // TODO translate
+
+		var menu = document.createElement("div");
+		menu.appendChild(title);
+		return menu;
+	}
+	function createTitlePage() {
+		var page = document.createElement("div");
+		// TODO create
+		return page;
+	}
+	function printPage() {
+		print([
+			createTitlePage(),
+			createPrintMenu(),
+			config.cache[config.selectedFile]
+		]);
+	}
+	function print(pages) {
+		var breakEl = document.createElement("div");
+		breakEl.setAttribute("style", "display:block; page-break-before:always;");
+
+		var container = document.querySelector('#js-doc__printing-container');
+
+		var footer = document.createElement("div");
+		footer.setAttribute("id", "pageFooter");
+
+		pages.forEach(function(page, index) {
+			if (index > 0) {
+				container.appendChild(breakEl);
+			}
+			// container.append(...data.children);
+			container.appendChild(data);
+		});
+		window.print();
+	}
 	/********** CHANGE  ************/
 	function onFileChange(config) {
 		if (config.selectedFile === null || !config.cache.hasOwnProperty(config.selectedFile)) {
@@ -405,7 +462,7 @@ function jdDocumentation(theme = null) {
 		loadResources(config.filesPath, body, body);
 		
 		document.querySelector("#js-doc__body").innerHTML = "";
-		document.querySelector("#js-doc__body").append(...body.cloneNode(true).children);
+		document.querySelector("#js-doc__body").innerHTML = body.innerHTML;
 
 		if (typeof hljs === 'undefined') {
 			document.addEventListener("scriptLoaded", function(e) {
@@ -418,11 +475,32 @@ function jdDocumentation(theme = null) {
 		}
 
 		// TODO download pdf
-		/*document.querySelector("#js-doc__body").querySelectorAll('.js-doc__pdf-page').forEach(function(button) {
+		/*
+		document.querySelector("#js-doc__body").querySelectorAll('.js-doc__pdf-page').forEach(function(button) {
 			button.addEventListener('click', function() {
-				pageDownload(config, config.selectedFile);
+				// pageDownload(config, config.selectedFile);
+				var content = document.createElement("div");
+				var ul = document.createElement("ul");
+				var li = document.createElement("li");
+				var a = document.createElement("a");
+				a.innerText = "Link";
+				a.setAttribute("href", "#H3-11");
+				li.appendChild(a);
+				ul.appendChild(li);
+				content.appendChild(ul);
+
+				var breakEl = document.createElement("div");
+				breakEl.setAttribute("style", "display:block; page-break-before:always;");
+
+				document.querySelector('#js-doc__printing-container').appendChild(content);
+				document.querySelector('#js-doc__printing-container').appendChild(breakEl);
+
+				var data = config.cache[config.selectedFile];
+				document.querySelector('#js-doc__printing-container').append(...data.children);
+				window.print();
 			});
-		});*/
+		});
+		//*/
 		window.scrollTo(0, 0);
 		document.dispatchEvent(new CustomEvent("bodyLoaded", {detail: config}));
 	}
@@ -491,11 +569,6 @@ function jdDocumentation(theme = null) {
 					)
 					.then(function(content) {
 						content = content.replace('{selectedVersion}', config.getVersionTitle());
-		/*
-		.replace(":Tag'", ":" + Doc.versions[Doc.version] + "'")
-				.replace("<h1>", '<h1 class="bd-title">')
-				.replace('<p class="introduction">', '<p class="bd-lead">');
-		*/
 						return {
 							file: file,
 							content: parseFileVersion(content, config.selectedVersion)
@@ -621,6 +694,27 @@ function jdDocumentation(theme = null) {
 				document.head.appendChild(script);
 			}
 		}
+
+		var setStyle = function(style, media) {
+			var s = document.createElement("style");
+			s.setAttribute("media", media);
+			s.innerHTML = style;
+			document.head.appendChild(s);
+		}
+
+		setStyle('body #js-doc__printing-container { display: none; }', "screen");
+		setStyle(
+			'body > :not(#js-doc__printing-container) { display: none; }'
+			+ ' body #js-doc__printing-container { display: table; }'
+			+ ' #pageFooter { display: table-footer-group; } '
+			+ ' #pageFooter:after { counter-increment: page; content: counter(page); }',
+			"print"
+		);
+
+		var printContainer = document.createElement("div");
+		printContainer.setAttribute("id", "js-doc__printing-container");
+		document.body.appendChild(printContainer);
+
 		if (theme === null) {
 			return document.ready().then(function(doc) {
 				return config;
