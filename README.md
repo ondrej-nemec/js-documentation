@@ -36,10 +36,10 @@ Fill example is available in [Example folder](examples).
 The HTML file contains link to JS Documentation script file and triggering script.
 
 ```html
-&lt;script src="https://ondrej-nemec.github.io/js-documentation/doc.js" crossorigin="anonymous"&gt;&lt;/script&gt;
-&lt;script type="text/javascript"&gt;
+<script src="https://ondrej-nemec.github.io/js-documentation/doc.js" crossorigin="anonymous"></script>
+<script type="text/javascript">
 	jdDocumentation();
-&lt;/script&gt;
+</script>
 ```
 
 The page look can be set:
@@ -85,7 +85,7 @@ If language value is string, the string is language title. The reading direction
 
 #### Optional parameters
 
- * `name`: will be set to `&lt;title&gt;`
+ * `name`: will be set to `<title>`
  * `icon`: will be used as page favicon
  * `description`: will be set to page metadata
  * `from`: start developing year. Required by some themes
@@ -100,17 +100,17 @@ The language directory contains files for only one language. The directory must 
 
 The menu file is HTML file, but more accurate it is XML menu configuration.
 
-The file contains list of `&lt;div&gt;` elements. One element - one menu item. The menu item must contains `&lt;span&gt;` (inner text is item title). Then must contains `&lt;a&gt;` or `&lt;div&gt;`.
+The file contains list of `<div>` elements. One element - one menu item. The menu item must contains `<span>` (inner text is item title). Then must contains `<a>` or `<div>`.
 
-If menu item contains `&lt;a&gt;`, the **inner text** is used as link. The link can be relative to another file in directory or absolute.
+If menu item contains `<a>`, the **inner text** is used as link. The link can be relative to another file in directory or absolute.
 
-If menu item contans `&lt;div&gt;`, the menu item contains submenu. The `&lt;div&gt;` contains list of `&lt;div&gt;` and works same as root menu (recursive). The allowed deep depends on theme.
+If menu item contans `<div>`, the menu item contains submenu. The `<div>` contains list of `<div>` and works same as root menu (recursive). The allowed deep depends on theme.
 
-Optionally, in the menu root can be `&lt;title&gt;`. This override `name` from `config.json`.
+Optionally, in the menu root can be `<title>`. This override `name` from `config.json`.
 
 #### One page
 
-Every page is simple HTML file without `&lt;html&gt;`, `&lt;head&gt;` or `&lt;body&gt;`.
+Every page is simple HTML file without `<html>`, `<head>` or `<body>`.
 
 **Replacement**
 
@@ -132,22 +132,22 @@ The element will be displayed if selected version is maximal value of this attri
 
 Element appears only if selected version is v1.1 or upper.
 ```html
-&lt;div class="diff" from="v1.1"&gt;&lt;/div&gt;
+<div class="diff" from="v1.1"></div>
 ```
 
 Element appers onfy if selected version is v1.1 or lower.
 ```html
-&lt;div class="diff" to="v1.1"&gt;&lt;/div&gt;
+<div class="diff" to="v1.1"></div>
 ```
 
 Element appers onfy if selected version is v1.1.
 ```html
-&lt;div class="diff" from="v1.1" to="v1.1"&gt;&lt;/div&gt;
+<div class="diff" from="v1.1" to="v1.1"></div>
 ```
 
 Element appers onfy if selected version between v1.1 and v2.0 (inclusive).
 ```html
-&lt;div class="diff" from="v1.1" to="v2.0"&gt;&lt;/div&gt;
+<div class="diff" from="v1.1" to="v2.0"></div>
 ```
 
 ## Using prepared theme
@@ -162,23 +162,23 @@ jdDocumentation("bootstrap-light");
 
 ### Themes
 
-&lt;table&gt;
-	&lt;tr&gt;
-		&lt;td&gt;
-			&lt;strong&gt;Bootstrap Light&lt;/strong&gt; &lt;br&gt;
-			&lt;a href="https://ondrej-nemec.github.io/js-documentation/examples/galery-bootstrap-light.html"&gt;
-				&lt;img src="preview/bootstrap-light.PNG"&gt; &lt;br&gt;
+<table>
+	<tr>
+		<td>
+			<strong>Bootstrap Light</strong> <br>
+			<a href="https://ondrej-nemec.github.io/js-documentation/examples/galery-bootstrap-light.html">
+				<img src="preview/bootstrap-light.PNG"> <br>
 				View
-			&lt;/a&gt; &lt;br&gt;
-			&lt;strong&gt;Name:&lt;/strong&gt; &lt;i&gt;bootstrap-light&lt;/i&gt; &lt;br&gt;
-			&lt;strong&gt;Third parties:&lt;/strong&gt;
-			&lt;ul&gt;
-				&lt;li&gt;&lt;a href="https://getbootstrap.com/docs/5.1/getting-started/introduction/"&gt;Bootstrap 5.1&lt;/a&gt;&lt;/li&gt;
-			&lt;/ul&gt;
-		&lt;/td&gt;
-	&lt;/tr&gt;
+			</a> <br>
+			<strong>Name:</strong> <i>bootstrap-light</i> <br>
+			<strong>Third parties:</strong>
+			<ul>
+				<li><a href="https://getbootstrap.com/docs/5.1/getting-started/introduction/">Bootstrap 5.1</a></li>
+			</ul>
+		</td>
+	</tr>
 
-&lt;/table&gt;
+</table>
 
 ## Theme in external file
 
