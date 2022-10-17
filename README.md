@@ -191,8 +191,11 @@ jdDocumentation("themes/theme.html");
 ```
 
 How define own theme see [Custom theme](#custom-theme)
+
 [Example of including own theme](/blob/master/examples/using-theme.html)
+
 [Example of simple own theme](/blob/master/examples/examples/themes/theme.html)
+
 [Live demo](https://ondrej-nemec.github.io/js-documentation/examples/using-theme.html?)
 
 ## Theme in main file
@@ -203,10 +206,11 @@ If you wish use own theme in main HTML file, let JS Documentation trigger withou
 jdDocumentation();
 ```
 
-[Example of theme in main file](/blob/master/examples/no-theme.html)
-[Live demo](https://ondrej-nemec.github.io/js-documentation/examples/no-theme.html)
-
 How code page see [Custom theme](#custom-theme)
+
+[Example of theme in main file](/blob/master/examples/no-theme.html)
+
+[Live demo](https://ondrej-nemec.github.io/js-documentation/examples/no-theme.html)
 
 ## Custom theme
 
