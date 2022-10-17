@@ -182,7 +182,7 @@ jdDocumentation("bootstrap-light");
 
 ## Theme in external file
 
-If you wish use own theme in external HTML file, add theme link as parameter to JS Documentation trigger. 
+If you wish use own theme in external HTML file, add link to theme as parameter to JS Documentation trigger. 
 
 **Example:**
 
@@ -190,10 +190,92 @@ If you wish use own theme in external HTML file, add theme link as parameter to 
 jdDocumentation("themes/theme.html");
 ```
 
+How define own theme see [Custom theme](#custom-theme)
+[Example of including own theme](/blob/master/examples/using-theme.html)
+[Example of simple own theme](/blob/master/examples/examples/themes/theme.html)
+[Live demo](https://ondrej-nemec.github.io/js-documentation/examples/using-theme.html?)
+
 ## Theme in main file
 
 If you wish use own theme in main HTML file, let JS Documentation trigger without parameter. 
 
+```javascript
+jdDocumentation();
+```
+
+[Example of theme in main file](/blob/master/examples/no-theme.html)
+[Live demo](https://ondrej-nemec.github.io/js-documentation/examples/no-theme.html)
+
+How code page see [Custom theme](#custom-theme)
+
 ## Custom theme
 
-TODO comming soon
+#### Note 1 (Theme in external file only):
+
+Theme file has to contains two `&lt;template&gt;` elements. First with id `head` (contains content of head) and `body` wiht content of body;
+
+#### Note 1 (Theme in external file only):
+
+Use `themeContentAdded` event instead of `DOMContentLoaded` or `$(document).ready()`
+
+### Version select
+
+Source element with version has to have id `js-doc__version-select`. The JS Documentation starts listening `click` event (or `change` in case of `SELECT`). Also template with id `js-doc__version-item` is required. The template content is one version row. The `{versionId}` will be replaced with version code and The `{versionTitle}` will be replaced with version title.
+
+### Language select
+
+Source element with language has to have id `js-doc__language-select`. The JS Documentation starts listening `click` event (or `change` in case of `SELECT`). Also template with id `js-doc__language-item` is required. The template content is one language row. The `{languageId}` will be replaced with language code and The `{languageTitle}` will be replaced with language title.
+
+### Menu
+
+Main menu is append to element with id `js-doc__menu`.
+
+Source for menu data is `index.html`. In this file can be menu-in-menu (levels). The theme can also support menu levels. If template support more levels then the file, superfluous menus will be ignored. If template support less levels than the file, some deep menus will not be working properly.
+
+The menu is defined by two templates: template with class `js-doc__menu-container-X` (where X is level, counting from 0) - define container for menu items, items will append to element with id `js-doc__menu-container`. The second template is template with class `js-doc__submenu-item-X` (where X is level, counting from 0) - define one item of menu, link itself is element with id `js-doc__menu-item-link`, link title is element with id `s-doc__menu-item-title`.
+
+**Note:** menu templates are defined by class so more levels can share template.
+
+### Submenu
+
+Submenu is append to element with id `js-doc__submenu`.
+
+Source for submenu is selected documentation page. In the page, JS Documentation finds all headlines.
+
+The menu is defined by two templates: template with class `js-doc__submenu-container-X` (where X is healine level, counting from 0) - define container for submenu items, items will append to element with id `js-doc__submenu-container`. The second template is template with class `js-doc__submenu-item-X` (where X is headline level, counting from 0) - define one item of menu, link itself is element with id `js-doc__submenu-item`.
+
+**Note:** submenu templates are defined by class so more levels can share template.
+
+### Body
+
+Documentation content is placed into element with id `js-doc__body`. 
+
+### Optional settings
+
+#### App name
+
+If exists element with id `js-doc__app-name`, JS Documentation will fill inner text with App name from config.
+
+#### Project start date
+
+If exists element with id `js-doc__app-from`, JS Documentation will fill inner text with start date from config.
+
+#### Current year
+
+If exists element with id `js-doc__app-now`, JS Documentation will fill inner text with current year.
+
+#### Author
+
+If exists element with id `js-doc__app-author`, JS Documentation will fill inner text with App author from config.
+
+#### Current version
+
+If exists element with id `js-doc__selected-version`, JS Documentation will fill inner text with selected version.
+
+#### Current language
+
+If exists element with id `js-doc__selected-language`, JS Documentation will fill inner text with selected language.
+
+#### Search bar
+
+If exists input with id `js-doc__search-input`, JS Documentation will start listening on change. If event is triggered, JS Documentation will display search result. For showing result, JS Documentation needs `&lt;template&gt;` with id `js-doc__search-item`. Template content represent one row of results. Row has to contains element with id `js-doc__search-item-title` for title and element with id `js-doc__search-item-example` for sample of text.
